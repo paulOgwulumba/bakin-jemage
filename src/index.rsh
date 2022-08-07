@@ -21,7 +21,8 @@ const Player = {
   getNumberOfMoves: Fun([], UInt),
   informTimeout: Fun([], Null),
   informDraw: Fun([], Null),
-  declareWinner: Fun([UInt, UInt], Null),
+  declareWinner: Fun([UInt], Null),
+  getOpponentResult: Fun([UInt], Null),
 };
 
 export const main = Reach.App(() => {
@@ -43,13 +44,25 @@ export const main = Reach.App(() => {
     });
   };
 
-  const announceWinner = (designation, numAlice, numBob) => {
+  const announceWinner = (designation) => {
     each([Alice, Bob], () => {
       if (this == Alice) {
-        interact.declareWinner(designation, numBob);
+        interact.declareWinner(designation);
       }
       else {
-        interact.declareWinner(designation, numAlice);
+        interact.declareWinner(designation);
+      }
+      
+    });
+  };
+
+  const getOpponentResult = (numOfMovesAlice, numOfMovesBob) => {
+    each([Alice, Bob], () => {
+      if (this == Alice) {
+        interact.getOpponentResult(numOfMovesBob);
+      }
+      else {
+        interact.getOpponentResult(numOfMovesAlice);
       }
       
     });
@@ -79,7 +92,9 @@ export const main = Reach.App(() => {
     .timeout(relativeTime(deadline), () => closeTo(Alice, informTimeout));
 
   var outcome = CONTINUE;
+
   invariant (balance() == 2 * wager && isOutcome(outcome));
+
   while(outcome == CONTINUE || outcome == DRAW) {
     commit();
 
@@ -101,13 +116,15 @@ export const main = Reach.App(() => {
     Alice.publish(numOfMovesAlice)
       .timeout(relativeTime(deadline), () => closeTo(Bob, informTimeout));
 
+    getOpponentResult(numOfMovesAlice, numOfMovesBob);
+
     outcome = getWinner(numOfMovesAlice, numOfMovesBob);
 
     continue;
   }
 
   transfer(2 * wager).to(outcome == A_WINS ? Alice : Bob);
-  announceWinner(outcome, numOfMovesAlice, numOfMovesBob);
+  announceWinner(outcome);
 
   commit();
 });
