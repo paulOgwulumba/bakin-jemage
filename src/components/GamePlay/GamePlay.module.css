@@ -194,7 +194,9 @@
       flex-wrap: wrap;
       width: 80px;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
+      color: rgb(126, 124, 124);
+      font-size: 24px;
   }
 
   .player-one-pieces-left {

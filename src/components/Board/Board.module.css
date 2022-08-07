@@ -39,15 +39,14 @@
 }
 
 .boardPiece {
-    width: calc(450px / 10);
-    height: calc(450px / 10);
-    border-radius: 100%;
+    width: calc(510px / 10);
+    height: calc(510px / 10);
+    /* border-radius: 100%; */
     border: 1px outset rgb(49, 48, 48);
-    animation: swell 2s linear 0ms infinite forwards;
 }
 
 .boardPieceBlock {
-    background-color: black;
+    background-color: rgb(80, 8, 8);
     border: 1px inset rgb(158, 89, 89);
 }
 
@@ -56,6 +55,7 @@
     border: 1px inset rgb(37, 37, 241);
     background-image: url(https://th.bing.com/th/id/R.6ccbb003afcb1c9b723631efe127fbe8?rik=nmvIVNZgJCqOmQ&pid=ImgRaw&r=0);
     background-size: cover;
+    animation: swell 2s linear 0ms infinite forwards;
 }
 
 .boardPieceHide {
@@ -68,6 +68,7 @@
     background-image: url(https://th.bing.com/th/id/R.6ccbb003afcb1c9b723631efe127fbe8?rik=nmvIVNZgJCqOmQ&pid=ImgRaw&r=0);
     background-size: cover;
     animation: rotate 2s linear 0ms infinite forwards;
+    border-radius: 100%;
 }
 
 @media (max-width: 700px) {
@@ -134,7 +135,7 @@
       transform: scale(1.03);
     }
     50% {
-      transform: scale(1.05);
+      transform: scale(1.1);
     }
     75% {
       transform: scale(1.03);

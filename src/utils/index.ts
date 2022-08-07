@@ -4,4 +4,6 @@ export * from './encodeGamePlayState';
 export * from './decodeGamePlayState';
 export * from './endAttack';
 export * from './endDoublePlay';
-export * from './unpackBoardState'
+export * from './unpackBoardState';
+export * from './isCellEmpty';
+export * from './moveCatAround';

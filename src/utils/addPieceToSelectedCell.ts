@@ -19,7 +19,6 @@ import { updateBoardState } from '../redux/slices';
     unpackedBoardState[position.Y][position.X] = cellState.CELL_CONTAINING_BLOCK
 
     if (dispatch) {
-        // setState(stringifyBoardState(unpackedBoardState));
         dispatch(updateBoardState(stringifyBoardState(unpackedBoardState)));
     }
 

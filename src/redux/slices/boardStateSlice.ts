@@ -10,23 +10,31 @@ const generateInitialBoardstate = (numRows: number, numOfColumns: number) => {
     for (let i = 0; i < numRows; i++) {
         for (let j = 0; j < numOfColumns; j++) {
             boardState += ((i === startingRowCat) && (j === startingColumnCat))? cellState.CELL_CONTAINING_CAT.toString() : cellState.CELL_EMPTY.toString();
-            //boardState += Math.round(Math.random() * 3).toString();
         }
         boardState += '_';
     }
 
-    return boardState;
+    return { 
+        boardState, 
+        catPosition: {
+            X: startingColumnCat,
+            Y: startingRowCat,
+        } 
+    }
 }
+
+const initialState = generateInitialBoardstate(10, 10);
 
 export const boardStateSlice = createSlice({
     name: 'boardState',
     initialState: {
-        boardState: generateInitialBoardstate(10, 10),
+        boardState: initialState.boardState,
         allPiecesAddedToBoard: false,
         cellOfSelectedPiece: {
             X: 0, Y: 0,
         },
-        boardStateArchive: [generateInitialBoardstate(10, 10)],
+        boardStateArchive: [initialState.boardState],
+        catPosition: initialState.catPosition,
     },
     reducers: {
         updateBoardState: (state, action) => {
@@ -37,6 +45,9 @@ export const boardStateSlice = createSlice({
         },
         updateCellOfSelectedPiece: (state, action) => {
             state.cellOfSelectedPiece = action.payload;
+        },
+        updateCatPosition: (state, action) => {
+            state.catPosition = action.payload;
         },
         updateBoardStateArchive: (state, action) => {
             let tempArchive = [];
@@ -50,17 +61,18 @@ export const boardStateSlice = createSlice({
             state.boardStateArchive = tempArchive;
         },
         refreshBoardState: (state) => {
-            state.boardState = generateInitialBoardstate(10, 10);
+            const newState = generateInitialBoardstate(10, 10);
+            state.boardState = newState.boardState;
             state.allPiecesAddedToBoard = false;
             state.cellOfSelectedPiece = {
                 X: 0, Y: 0,
             }
-            state.boardStateArchive = [generateInitialBoardstate(10, 10)];
-
+            state.boardStateArchive = [newState.boardState];
+            state.catPosition = newState.catPosition;
         }
     }
 });
 
-export const { updateBoardState, updateAllPiecesAddedToBoard, updateCellOfSelectedPiece, updateBoardStateArchive, refreshBoardState } = boardStateSlice.actions;
+export const { updateBoardState, updateAllPiecesAddedToBoard, updateCellOfSelectedPiece, updateBoardStateArchive, refreshBoardState, updateCatPosition } = boardStateSlice.actions;
 
 export default boardStateSlice.reducer;

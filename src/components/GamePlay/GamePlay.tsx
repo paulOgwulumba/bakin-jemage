@@ -9,6 +9,8 @@ import {
     endDoublePlay,
     unpackBoardState, 
     stringifyBoardState, 
+    isCellEmpty,
+    moveCatAround
 } from '../../utils';
 import { cellPosition, gamePlayState } from '../../utils/interfaces';
 import { player, cellState } from '../../utils/constants';
@@ -19,13 +21,14 @@ import {
     updateNumberOfAttacksLeft,
     updateIsPlayerToAttackOpponentPieces,
     updateIsPlayerToPlayAgain,
+    updateNumberOfMoves,
+    refreshBoardState,
+    refreshGamePlayState
  } from '../../redux/slices';
 import { PiecesLeft } from './PiecesLeft';
-import { PiecesCaptured } from './PiecesCaptured';
+import { Indicator } from './Indicator';
 import { PiecesInHand } from './PiecesInHand';
 import { PlayerTurnAnimator } from './PlayerTurnAnimator';
-
-const initialBoardState = `00000_00000_00000_00000_00000`;
 
 interface IGamePlayProps {
     resolvePromise: Function,
@@ -36,21 +39,8 @@ function GamePlay({ resolvePromise, isGameLoading }: IGamePlayProps) {
     const dispatch = useDispatch();
 
     const boardState = useSelector(Selector.selectBoardState);
-
-    const allPiecesAddedToBoard = useSelector(Selector.selectAllPiecesAddedToBoard);
-    const cellOfSelectedPiece = useSelector(Selector.selectCellOfSelectedPiece);
-    const currentPlayer = useSelector(Selector.selectCurrentPlayer);
-
-    const playerTurn = useSelector(Selector.selectPlayerTurn);
-    
-    const playerOnePiecesInHand = useSelector(Selector.selectPlayerOnePiecesInHand);
-    const playerTwoPiecesInHand = useSelector(Selector.selectPlayerTwoPiecesInHand);
-    const playerOnePiecesLeft = useSelector(Selector.selectPlayerOnePiecesLeft);
-    const playerTwoPiecesLeft = useSelector(Selector.selectPlayerTwoPiecesLeft);
-    const isPlayerToPlayAgain = useSelector(Selector.selectIsPlayerToPlayAgain);
-    const isPlayerToAttackOpponentPieces = useSelector(Selector.selectIsPlayerToAttackOpponentPieces);
-    const numberOfAttacksLeft = useSelector(Selector.selectNumberOfAttacksLeft);
-    
+    const catPosition = useSelector(Selector.selectCatPosition);
+    const numberOfMoves = useSelector(Selector.selectNumberOfMoves);
     
     // const handleClick = (position: cellPosition) => {
     //     let unpackedBoardState = unpackBoardState(boardState);
@@ -171,7 +161,19 @@ function GamePlay({ resolvePromise, isGameLoading }: IGamePlayProps) {
     // }
 
     const handleClick = (position: cellPosition) => {
-        console.log(position);
+        let unpackedBoardState = unpackBoardState(boardState);
+
+        const stateOfSelectedCell = unpackedBoardState[position.Y][position.X];
+
+        if (isCellEmpty(stateOfSelectedCell)) {
+            addPieceToSelectedCell(unpackedBoardState, position, dispatch);
+            dispatch(updateNumberOfMoves());
+
+            const continueGame = moveCatAround(unpackedBoardState, catPosition, dispatch);
+        }
+        else {
+            alert('You cannot place a block in this position because it is already occupied.')
+        }
     }
 
     return (
@@ -187,17 +189,9 @@ function GamePlay({ resolvePromise, isGameLoading }: IGamePlayProps) {
                   
                 </div>
                 <div className={styles["player-info"]}>
-                    <p className={styles["player-info-heading"]}>Pieces Left</p>
-                    <PiecesLeft 
-                        currentPlayer = { currentPlayer } 
-                        piecesLeft = { currentPlayer === player.FIRST_PLAYER? playerOnePiecesLeft : playerTwoPiecesLeft }
-                    />
-                </div>
-                <div className={styles["player-info"]}>
-                    <p className={styles["player-info-heading"]}>Pieces Captured</p>
-                    <PiecesCaptured
-                        opponent = { currentPlayer === player.FIRST_PLAYER? player.SECOND_PLAYER : player.FIRST_PLAYER } 
-                        piecesLeft = { currentPlayer === player.FIRST_PLAYER? playerTwoPiecesLeft : playerOnePiecesLeft }
+                    <p className={styles["player-info-heading"]}>Number of moves</p>
+                    <Indicator
+                        numberOfMoves={numberOfMoves}
                     />
                 </div>
             </div>
@@ -207,32 +201,7 @@ function GamePlay({ resolvePromise, isGameLoading }: IGamePlayProps) {
                 numberOfRows = {10}
                 handleCellClick = { handleClick }
             />
-            <div className={styles["player-info-overview"]}>
-                <div className = {styles["player-info-title-wrapper"]}>
-                    <p className = {styles["player-info-title"]}>
-                        Opponent
-                    </p>
-                    
-                    <PlayerTurnAnimator isActive = { isGameLoading } title="Opponent's turn"/>
-                </div>
-                <div className={styles["player-info"]}>
-                    <p className={styles["player-info-heading"]}>Pieces Left</p>
-                    <PiecesLeft 
-                        currentPlayer = { currentPlayer === player.FIRST_PLAYER? player.SECOND_PLAYER : player.FIRST_PLAYER } 
-                        piecesLeft = { currentPlayer === player.FIRST_PLAYER? playerTwoPiecesLeft : playerOnePiecesLeft }
-                    />
-                </div>
-                <div className={styles["player-info"]}>
-                    <p className={styles["player-info-heading"]}>Pieces Captured</p>
-                    <PiecesCaptured
-                        opponent = { currentPlayer === player.FIRST_PLAYER? currentPlayer : player.SECOND_PLAYER } 
-                        piecesLeft = { currentPlayer === player.FIRST_PLAYER? playerOnePiecesLeft : playerTwoPiecesLeft }
-                    />
-                </div>
-            </div>
         </div>
-
-        <PiecesInHand />
       </>
     );
 };

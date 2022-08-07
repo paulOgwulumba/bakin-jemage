@@ -124,6 +124,18 @@ const selectBoardStateArchive = (state: any) => {
     return state.boardState.boardStateArchive;
 }
 
+const selectNumberOfMoves = (state: any) => {
+    return state.gamePlayState.numberOfMoves;
+}
+
+const selectCurrentRound = (state: any) => {
+    return state.gamePlayState.currentRound;
+}
+
+const selectCatPosition = (state: any) => {
+    return state.boardState.catPosition;
+}
+
 export const StateGetter = {
     getBoardState,
     getAllPiecesAddedToBoard,
@@ -159,4 +171,7 @@ export const Selector = {
     selectPlayerWalletAccount,
     selectCurrentView,
     selectStartingNumberOfPieces,
+    selectNumberOfMoves,
+    selectCurrentRound,
+    selectCatPosition,
 }
