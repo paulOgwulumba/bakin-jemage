@@ -14,61 +14,60 @@
     justify-content: center;
     align-items: center;
     width: 530px;
-    height: calc(530px / 4);
+    height: calc(530px / 9);
 }
 
 .boardCellWrapper {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: calc(530px / 5);
-    height: calc(530px / 5);
+    width: calc(530px / 10);
+    height: calc(530px / 10);
 }
 
 .boardCell {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #36454F;
-    width: calc(510px / 5);
-    height: calc(510px / 5);
+    background-color: black;
+    /* background-color: #f08080; */
+    width: calc(510px / 10);
+    height: calc(510px / 10);
     border: 1px inset rgb(126, 124, 124);
-    border-radius: 7px;
+    /* border-radius: 7px; */
     cursor: pointer;
 }
 
-.boardCellHit {
-    background-color: black;
-}
-
-.boardCellHitBefore {
-    background-color: rgb(129, 126, 126);
-}
-
-.boardCellSelected {
-    background-color: whitesmoke;
-}
-
 .boardPiece {
-    width: calc(450px / 5);
-    height: calc(450px / 5);
+    width: calc(450px / 10);
+    height: calc(450px / 10);
     border-radius: 100%;
     border: 1px outset rgb(49, 48, 48);
     animation: swell 2s linear 0ms infinite forwards;
 }
 
-.boardPiecePlayerOne {
-    background-color: maroon;
+.boardPieceBlock {
+    background-color: black;
     border: 1px inset rgb(158, 89, 89);
 }
 
-.boardPiecePlayerTwo {
-    background-color: rgb(14, 14, 107);
+.boardPieceCat {
+    background-color: black;
     border: 1px inset rgb(37, 37, 241);
+    background-image: url(https://th.bing.com/th/id/R.6ccbb003afcb1c9b723631efe127fbe8?rik=nmvIVNZgJCqOmQ&pid=ImgRaw&r=0);
+    background-size: cover;
 }
 
 .boardPieceHide {
     display: none;
+}
+
+.boardPieceCatTrapped {
+    background-color: black;
+    border: 1px inset rgb(37, 37, 241);
+    background-image: url(https://th.bing.com/th/id/R.6ccbb003afcb1c9b723631efe127fbe8?rik=nmvIVNZgJCqOmQ&pid=ImgRaw&r=0);
+    background-size: cover;
+    animation: rotate 2s linear 0ms infinite forwards;
 }
 
 @media (max-width: 700px) {
@@ -143,4 +142,19 @@
     100% {
       transform: scale(1.01);
     }
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+      }
+      25% {
+        transform: rotate(120deg);
+      }
+      50% {
+        transform: rotate(240deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
 }

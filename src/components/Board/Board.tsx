@@ -5,13 +5,13 @@ import BoardRow from './BoardRow';
 import { unpackBoardState } from '../../utils';
 
 interface BoardProps {
-    numberOfRows: number,
-    numberOfColumns: number,
+    numberOfRows?: number,
+    numberOfColumns?: number,
     boardState: string,
     handleCellClick: Function,
 }
 
-const Board = ({ numberOfRows = 5, numberOfColumns = 5, boardState, handleCellClick }: BoardProps) => {
+const Board = ({ numberOfRows = 10, numberOfColumns = 10, boardState, handleCellClick }: BoardProps) => {
 
     const renderBoard = (rows: number, columns: number, state: string) => {
         let boardArray = [];

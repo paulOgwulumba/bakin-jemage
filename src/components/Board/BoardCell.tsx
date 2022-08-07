@@ -20,7 +20,7 @@ const BoardCell = ({
     return (
         <div className = { `${styles.boardCellWrapper}` }>
             <div 
-                className = { `${styles.boardCell} ${getBoardCellClassName(cellState)}`}
+                className = { `${styles.boardCell}`}
                 onClick = { () => handleClick(cellPosition) }
             >
                 <div className = {`${styles.boardPiece} ${getBoardPieceClassName(cellState)}`}></div>
@@ -30,38 +30,19 @@ const BoardCell = ({
 };
 
 const getBoardPieceClassName = (state: cellStateEnum) => {
-    if (
-        state === cellStateEnum.CELL_CONTAINING_PIECE_PLAYER_1 
-        || state === cellStateEnum.CELL_MATCHED_PLAYER_1
-        || state === cellStateEnum.CELL_SELECTED_PLAYER_1
-        || state === cellStateEnum.CELL_MATCHED_BEFORE_PLAYER_1
-    ) {
-      return styles.boardPiecePlayerOne;
+    if (state === cellStateEnum.CELL_CONTAINING_BLOCK) {
+      return styles.boardPieceBlock;
     }
 
-    if (
-        state === cellStateEnum.CELL_CONTAINING_PIECE_PLAYER_2
-        || state === cellStateEnum.CELL_MATCHED_PLAYER_2
-        || state === cellStateEnum.CELL_SELECTED_PLAYER_2
-        || state === cellStateEnum.CELL_MATCHED_BEFORE_PLAYER_2
-    ) {
-      return styles.boardPiecePlayerTwo;
+    if (state === cellStateEnum.CELL_CONTAINING_CAT) {
+      return styles.boardPieceCat;
     }
+
+    if (state === cellStateEnum.CELL_CONTAINING_TRAPPED_CAT) {
+        return styles.boardPieceCatTrapped;
+      }
 
     return styles.boardPieceHide;
-}
-
-const getBoardCellClassName = (state: cellStateEnum) => {
-    if (state === cellStateEnum.CELL_MATCHED_PLAYER_1 || state === cellStateEnum.CELL_MATCHED_PLAYER_2) {
-        return styles.boardCellHit;
-    }
-    if (state === cellStateEnum.CELL_SELECTED_PLAYER_1 || state === cellStateEnum.CELL_SELECTED_PLAYER_2) {
-        return styles.boardCellSelected;
-    }
-    if (state === cellStateEnum.CELL_MATCHED_BEFORE_PLAYER_1 || state === cellStateEnum.CELL_MATCHED_BEFORE_PLAYER_2) {
-        return styles.boardCellHitBefore;
-    }
-    return ''
 }
 
 

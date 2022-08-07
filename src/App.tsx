@@ -49,7 +49,7 @@ const App = ({ reach, reachBackend }: IAppProps) => {
     const playerWalletAccount = useSelector(Selector.selectPlayerWalletAccount);
     const currentView = useSelector(Selector.selectCurrentView);
     const [promise, setPromise] = useState({resolve: null});
-    const [isLoading, setIsLoading] = useState(false); /////////
+    const [isLoading, setIsLoading] = useState(false);
     const [isGameLoading, setIsGameLoading] = useState(false);;
     const [mnemonic, setMnemonic] = useState('');
     const [contractAddressEntry, setContractAddressEntry] = useState('');
@@ -289,7 +289,7 @@ const App = ({ reach, reachBackend }: IAppProps) => {
     }
 
     useEffect(() => {
-        connectToDefaultAccount();
+        //connectToDefaultAccount();
     }, []);
 
     return (

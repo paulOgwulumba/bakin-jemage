@@ -1,14 +1,32 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { cellState } from '../../utils/constants';
+
+const generateInitialBoardstate = (numRows: number, numOfColumns: number) => {
+    const startingRowCat = Math.round(Math.random() * (numRows - 1));
+    const startingColumnCat = Math.round(Math.random() * (numOfColumns - 1));
+
+    let boardState = '';
+
+    for (let i = 0; i < numRows; i++) {
+        for (let j = 0; j < numOfColumns; j++) {
+            boardState += ((i === startingRowCat) && (j === startingColumnCat))? cellState.CELL_CONTAINING_CAT.toString() : cellState.CELL_EMPTY.toString();
+            //boardState += Math.round(Math.random() * 3).toString();
+        }
+        boardState += '_';
+    }
+
+    return boardState;
+}
 
 export const boardStateSlice = createSlice({
     name: 'boardState',
     initialState: {
-        boardState: '00000_00000_00000_00000_00000',
+        boardState: generateInitialBoardstate(10, 10),
         allPiecesAddedToBoard: false,
         cellOfSelectedPiece: {
             X: 0, Y: 0,
         },
-        boardStateArchive: ['00000_00000_00000_00000_00000'],
+        boardStateArchive: [generateInitialBoardstate(10, 10)],
     },
     reducers: {
         updateBoardState: (state, action) => {
@@ -32,12 +50,12 @@ export const boardStateSlice = createSlice({
             state.boardStateArchive = tempArchive;
         },
         refreshBoardState: (state) => {
-            state.boardState = '00000_00000_00000_00000_00000';
+            state.boardState = generateInitialBoardstate(10, 10);
             state.allPiecesAddedToBoard = false;
             state.cellOfSelectedPiece = {
                 X: 0, Y: 0,
             }
-            state.boardStateArchive = ['00000_00000_00000_00000_00000'];
+            state.boardStateArchive = [generateInitialBoardstate(10, 10)];
 
         }
     }

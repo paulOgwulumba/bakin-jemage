@@ -1,6 +1,6 @@
 import { cellPosition } from './interfaces';
 import { cellState, player } from './constants';
-import { stringifyBoardState } from '.';
+import { stringifyBoardState } from './unpackBoardState';
 import { updateBoardState } from '../redux/slices';
 
 /**
@@ -14,14 +14,9 @@ import { updateBoardState } from '../redux/slices';
  const addPieceToSelectedCell = (
     unpackedBoardState: Array<Array<number>>, 
     position: cellPosition, 
-    playerTurn: number, 
     dispatch?: any,
   ) => {
-    unpackedBoardState[position.Y][position.X] = 
-    playerTurn === player.FIRST_PLAYER? 
-        cellState.CELL_CONTAINING_PIECE_PLAYER_1
-        : 
-        cellState.CELL_CONTAINING_PIECE_PLAYER_2;
+    unpackedBoardState[position.Y][position.X] = cellState.CELL_CONTAINING_BLOCK
 
     if (dispatch) {
         // setState(stringifyBoardState(unpackedBoardState));
