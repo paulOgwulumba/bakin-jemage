@@ -194,13 +194,30 @@ function GamePlay({ resolvePromise, isGameLoading }: IGamePlayProps) {
                         numberOfMoves={numberOfMoves}
                     />
                 </div>
+
+                <div className = {styles["player-info-title-wrapper"]} style={{marginTop: "100px"}}>
+                  <p className = {styles["player-info-title"]}>
+                      Opponent
+                  </p>
+                  
+                  <PlayerTurnAnimator isActive = { isGameLoading } title="Opponent's turn"/>
+                  
+                </div>
+                <div className={styles["player-info"]}>
+                    <p className={styles["player-info-heading"]}>Number of moves</p>
+                    <Indicator
+                        numberOfMoves={numberOfMoves}
+                    />
+                </div>
             </div>
-            <Board 
-                boardState = { boardState } 
-                numberOfColumns = {10} 
-                numberOfRows = {10}
-                handleCellClick = { handleClick }
-            />
+            <div className={styles["game-info"]}>
+                <Board 
+                    boardState = { boardState } 
+                    numberOfColumns = {10} 
+                    numberOfRows = {10}
+                    handleCellClick = { handleClick }
+                />
+            </div>
         </div>
       </>
     );
