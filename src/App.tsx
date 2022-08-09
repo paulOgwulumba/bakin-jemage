@@ -69,7 +69,7 @@ const App = ({ reach, reachBackend }: IAppProps) => {
         }
         else {
             dispatch(updateWaitingForPlayer(true));
-            await new Promise((resolve) => {
+            return await new Promise((resolve) => {
                 setPromise({resolve: resolve});
             })
         }
