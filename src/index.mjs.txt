@@ -55,6 +55,9 @@ if (isAlice) {
   );
   interact.wager = amt;
   interact.deadline = { ETH: 100, ALGO: 100, CFX: 1000 }[stdlib.connector];
+  interact.informOfJoiner = () => {
+    console.log("A player has joined this contract!!");
+  }
 } else {
   interact.acceptWager = async (amt) => {
     const accepted = await ask.ask(

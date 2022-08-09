@@ -1,5 +1,5 @@
 import { cellPosition } from './interfaces';
-import { cellState, player } from './constants';
+import { cellState } from './constants';
 import { stringifyBoardState } from './unpackBoardState';
 import { updateBoardState } from '../redux/slices';
 

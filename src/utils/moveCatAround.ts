@@ -1,7 +1,6 @@
 import { cellPosition } from "./interfaces";
 import { getListOfEmptyCellsAroundCat } from "./getListOfEmptyCellsAroundCat";
 import { stringifyBoardState } from './unpackBoardState';
-import { isCellEmpty } from "./isCellEmpty";
 import { updateBoardState } from '../redux/slices';
 import { updateCatPosition } from "../redux/slices";
 import { cellState } from "./constants";
@@ -23,11 +22,11 @@ export const moveCatAround = (
         dispatch(updateBoardState(stringifyBoardState(unpackedBoardState)));
         dispatch(updateCatPosition(randomCell));
 
-        return true;
+        return { continueGame: true, boardState: stringifyBoardState(unpackedBoardState) };
     }
     else {
         unpackedBoardState[catPosition.Y][catPosition.X] = cellState.CELL_CONTAINING_TRAPPED_CAT;
         dispatch(updateBoardState(stringifyBoardState(unpackedBoardState)));
-        return false;
+        return { continueGame: false, boardState: stringifyBoardState(unpackedBoardState) };
     }
 }

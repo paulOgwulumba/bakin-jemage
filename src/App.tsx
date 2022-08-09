@@ -16,7 +16,6 @@ import {
     ReviewGameView,
 } from './views';
 import { Views, participantTitle, player } from './utils/constants';
-import { encodeGamePlayState, decodeGamePlayState } from './utils';
 import { Loader, GameLoader } from './components';
 import { Selector } from './redux/selectors';
 import Store from './redux/store';
@@ -26,19 +25,11 @@ import {
     updatePlayerWalletAccount, 
     updateCurrentPlayer,
     updateCurrentView, 
-    updateBoardState, 
-    updateAllPiecesAddedToBoard,
-    updateCellOfSelectedPiece,
-    updateIsPlayerToAttackOpponentPieces,
-    updateIsPlayerToPlayAgain,
-    updateNumberOfAttacksLeft,
-    updatePlayerOnePiecesInHand,
-    updatePlayerOnePiecesLeft,
-    updatePlayerTurn,
-    updatePlayerTwoPiecesInHand,
-    updatePlayerTwoPiecesLeft,
+    updateWaitingForPlayer,
+    updateNumberOfOpponentMoves,
+    moveToNextRound,
+    refreshBoardState,
 } from './redux/slices';
-
 
 export interface IAppProps {
     reach: any,
@@ -48,6 +39,9 @@ export interface IAppProps {
 const App = ({ reach, reachBackend }: IAppProps) => {
     const playerWalletAccount = useSelector(Selector.selectPlayerWalletAccount);
     const currentView = useSelector(Selector.selectCurrentView);
+    const playerIsDone = useSelector(Selector.selectPlayerIsDone);
+    const numberOfMoves = useSelector(Selector.selectNumberOfMoves);
+
     const [promise, setPromise] = useState({resolve: null});
     const [isLoading, setIsLoading] = useState(false);
     const [isGameLoading, setIsGameLoading] = useState(false);;
@@ -69,102 +63,50 @@ const App = ({ reach, reachBackend }: IAppProps) => {
     }
 
     const awaitPlayerMove = async () => {
-        await new Promise((resolve) => {
-            setPromise({resolve: resolve});
-        })
-    };
-
-    const awaitPlayerMoveOrSkipIfGameHasEnded = async () => {
-        const currentPlayer = Store.getState().gamePlayState.currentPlayer;      
-        const piecesLeft = currentPlayer === player.FIRST_PLAYER? Store.getState().playerState.playerOnePiecesLeft : Store.getState().playerState.playerTwoPiecesLeft;
-            
-        if (piecesLeft >= 3) {
-            setIsGameLoading(false);
-            await awaitPlayerMove();
+        if (playerIsDone) {
+            dispatch(updateWaitingForPlayer(false));
+            return numberOfMoves
         }
         else {
-            console.log("Skipping move execution because player does not have enough pieces left.");
+            dispatch(updateWaitingForPlayer(true));
+            await new Promise((resolve) => {
+                setPromise({resolve: resolve});
+            })
         }
     };
 
     const InteractInterface = {
-        getNumberOfPiecesLeft: () => {
-            setIsGameLoading(true);
-            const nothing = currentView === Views.GAME_PLAY_VIEW? '' : dispatch(updateCurrentView(Views.GAME_PLAY_VIEW));
-            
-            const currentPlayer = Store.getState().gamePlayState.currentPlayer;
-
-            const playerPieces = 
-                currentPlayer === player.FIRST_PLAYER? 
-                Store.getState().playerState.playerTwoPiecesLeft
-                :
-                Store.getState().playerState.playerOnePiecesLeft;
-
-            const opponentPieces = 
-                currentPlayer === player.FIRST_PLAYER?
-                Store.getState().playerState.playerOnePiecesLeft
-                :
-                Store.getState().playerState.playerTwoPiecesLeft
-            
-            return [playerPieces, opponentPieces];
+        getNumberOfMoves: async () => {
+            setIsGameLoading(false);
+            return await awaitPlayerMove();
         },
 
-        dealPiece: async () => {
-            let nothing = currentView === Views.GAME_PLAY_VIEW? '' : dispatch(updateCurrentView(Views.GAME_PLAY_VIEW));
-            const currentPlayer = Store.getState().gamePlayState.currentPlayer;
-            const playerTurn = Store.getState().gamePlayState.playerTurn;
-            
-            if (playerTurn === currentPlayer) {      
-                await awaitPlayerMoveOrSkipIfGameHasEnded(); 
-            }
-            else {
-                console.log("Skipping your turn for opponent to complete their move...");
-            }
-
-            const boardState = Store.getState().boardState.boardState;
-            const gamePlayState = encodeGamePlayState();
-            return [boardState, gamePlayState];
-        },
-
-        updateOpponentMove: (newBoardState: any, gamePlayState: any) => {
+        getOpponentResult: (numOfMoves: any) => {
             setIsGameLoading(true);
-            const nothing = currentView === Views.GAME_PLAY_VIEW? '' : dispatch(updateCurrentView(Views.GAME_PLAY_VIEW));
-            const decodedGamePlayState = decodeGamePlayState(gamePlayState);
-
-            dispatch(updateBoardStateArchive(newBoardState));
-            
-            dispatch(updateAllPiecesAddedToBoard(decodedGamePlayState.allPiecesAddedToBoard));
-            dispatch(updateCellOfSelectedPiece(decodedGamePlayState.cellOfSelectedPiece));
-            dispatch(updateIsPlayerToAttackOpponentPieces(decodedGamePlayState.isPlayerToAttackOpponentPieces));
-            dispatch(updateIsPlayerToPlayAgain(decodedGamePlayState.isPlayerToPlayAgain));
-            dispatch(updateNumberOfAttacksLeft(decodedGamePlayState.numberOfAttacksLeft));
-            dispatch(updatePlayerOnePiecesInHand(decodedGamePlayState.playerOnePiecesInHand));
-            dispatch(updatePlayerOnePiecesLeft(decodedGamePlayState.playerOnePiecesLeft));
-            dispatch(updatePlayerTurn(decodedGamePlayState.playerTurn));
-            dispatch(updatePlayerTwoPiecesInHand(decodedGamePlayState.playerTwoPiecesInHand));
-            dispatch(updatePlayerTwoPiecesLeft(decodedGamePlayState.playerTwoPiecesLeft));
-            dispatch(updateBoardState(newBoardState));
+            updateNumberOfOpponentMoves(parseInt(numOfMoves));
         }, 
 
         informTimeout: () => {
             alert("Time is up!!!");
         },
 
-        informDisagreement: () => {
-            alert("Values from two players do not match!");
+        informDraw: () => {
+            alert("A draw was recorded, play again to determine winner!");
+            dispatch(moveToNextRound());
+            dispatch(refreshBoardState());
+            setIsGameLoading(false);
         }, 
 
-        announceWinner: () => {
+        declareWinner: (result: any) => {
             const currentPlayer = Store.getState().gamePlayState.currentPlayer;
-            const piecesLeft = currentPlayer === player.FIRST_PLAYER? Store.getState().playerState.playerOnePiecesLeft : Store.getState().playerState.playerTwoPiecesLeft;
             setIsGameLoading(false);
             setIsLoading(false);
             
-            if (piecesLeft >= 3) {
-                dispatch(updateCurrentView(Views.WINNER_VIEW));
+            if (parseInt(result) === 0) {
+                dispatch(updateCurrentView(currentPlayer === player.FIRST_PLAYER? Views.WINNER_VIEW : Views.LOSER_VIEW));
             }
             else {
-                dispatch(updateCurrentView(Views.LOSER_VIEW));
+                dispatch(updateCurrentView(currentPlayer === player.SECOND_PLAYER? Views.WINNER_VIEW : Views.LOSER_VIEW));
             }
         }
     };
@@ -191,6 +133,9 @@ const App = ({ reach, reachBackend }: IAppProps) => {
             ...InteractInterface,
             wager,
             deadline: 120,              // deadline of 120 seconds
+            informOfJoiner: () => {
+                dispatch(updateCurrentView(Views.GAME_PLAY_VIEW));
+            }
         };
 
         let contract;
@@ -213,7 +158,7 @@ const App = ({ reach, reachBackend }: IAppProps) => {
 
             dispatch(updateContractAddress(contractAddress));
             dispatch(updateCurrentView(Views.WAITING_FOR_ATTACHER_VIEW));
-            dispatch(updateCurrentPlayer(player.SECOND_PLAYER))
+            dispatch(updateCurrentPlayer(player.FIRST_PLAYER))
         }
         catch (err) {
             setIsLoading(false);
@@ -236,7 +181,7 @@ const App = ({ reach, reachBackend }: IAppProps) => {
             setIsGameLoading(true);
             setIsLoading(false);
             
-            dispatch(updateCurrentPlayer(player.FIRST_PLAYER))
+            dispatch(updateCurrentPlayer(player.SECOND_PLAYER))
             dispatch(updateCurrentView(Views.GAME_PLAY_VIEW));
         } catch (err) {
             setIsLoading(false);
@@ -289,7 +234,7 @@ const App = ({ reach, reachBackend }: IAppProps) => {
     }
 
     useEffect(() => {
-        //connectToDefaultAccount();
+        connectToDefaultAccount();
     }, []);
 
     return (

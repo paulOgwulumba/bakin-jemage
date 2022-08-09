@@ -30,6 +30,7 @@ export const main = Reach.App(() => {
     ...Player,
     wager: UInt,
     deadline: UInt,
+    informOfJoiner: Fun([], Null),
   });
   const Bob = Participant('Bob', {
     ...Player,
@@ -90,6 +91,8 @@ export const main = Reach.App(() => {
   })
   Bob.pay(wager)
     .timeout(relativeTime(deadline), () => closeTo(Alice, informTimeout));
+  
+  Alice.interact.informOfJoiner();
 
   var outcome = CONTINUE;
 

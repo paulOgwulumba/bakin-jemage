@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import { updateCurrentView, refreshBoardState, refreshGamePlayState, refreshPlayerState } from '../redux/slices';
+import { updateCurrentView, refreshBoardState, refreshGamePlayState } from '../redux/slices';
 import { Views } from '../utils/constants';
 import style from './View.module.css';
 
@@ -9,7 +9,6 @@ export const LoserView = () => {
     const onPlayAgain = () => {
         dispatch(refreshBoardState());
         dispatch(refreshGamePlayState());
-        dispatch(refreshPlayerState());
         dispatch(updateCurrentView(Views.DEPLOYER_OR_ATTACHER_VIEW));
     };
 

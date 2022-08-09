@@ -1,14 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
 import appStateReducer from './slices/appStateSlice';
 import boardStateReducer from './slices/boardStateSlice';
-import playerStateReducer from './slices/playerStateSlice';
 import gamePlayStateReducer from './slices/gamePlayStateSlice';
 
 export default configureStore({
     reducer: {
         appState: appStateReducer,
         boardState: boardStateReducer,
-        playerState: playerStateReducer,
         gamePlayState: gamePlayStateReducer,
     },
     middleware: (getDefaultMiddleware) =>

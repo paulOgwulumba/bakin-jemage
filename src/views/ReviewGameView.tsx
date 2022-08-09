@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Selector } from '../redux/selectors';
 import styles from './View.module.css';
 import { Board } from '../components';
-import { updateCurrentView, refreshBoardState, refreshGamePlayState, refreshPlayerState } from '../redux/slices';
+import { updateCurrentView, refreshBoardState, refreshGamePlayState } from '../redux/slices';
 import { Views } from '../utils/constants';
 
 export const ReviewGameView = () => {
@@ -27,7 +27,6 @@ export const ReviewGameView = () => {
         dispatch(updateCurrentView(Views.DEPLOYER_OR_ATTACHER_VIEW));
         dispatch(refreshBoardState());
         dispatch(refreshGamePlayState());
-        dispatch(refreshPlayerState());
     }
 
     return (

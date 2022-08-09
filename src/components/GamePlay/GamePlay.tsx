@@ -1,33 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import styles from './GamePlay.module.css';
 import { Board } from '../../components';
 import { 
     addPieceToSelectedCell,
-    encodeGamePlayState,
-    endAttack,
-    endDoublePlay,
     unpackBoardState, 
-    stringifyBoardState, 
     isCellEmpty,
     moveCatAround
 } from '../../utils';
-import { cellPosition, gamePlayState } from '../../utils/interfaces';
-import { player, cellState } from '../../utils/constants';
+import { cellPosition } from '../../utils/interfaces';
 import { Selector } from '../../redux/selectors';
-import { 
-    updateBoardState,
-    updateCellOfSelectedPiece,
-    updateNumberOfAttacksLeft,
-    updateIsPlayerToAttackOpponentPieces,
-    updateIsPlayerToPlayAgain,
-    updateNumberOfMoves,
-    refreshBoardState,
-    refreshGamePlayState
- } from '../../redux/slices';
-import { PiecesLeft } from './PiecesLeft';
+import { updateNumberOfMoves, updatePlayerIsDone, updateBoardStateArchive } from '../../redux/slices';
 import { Indicator } from './Indicator';
-import { PiecesInHand } from './PiecesInHand';
 import { PlayerTurnAnimator } from './PlayerTurnAnimator';
 
 interface IGamePlayProps {
@@ -41,124 +25,8 @@ function GamePlay({ resolvePromise, isGameLoading }: IGamePlayProps) {
     const boardState = useSelector(Selector.selectBoardState);
     const catPosition = useSelector(Selector.selectCatPosition);
     const numberOfMoves = useSelector(Selector.selectNumberOfMoves);
-    
-    // const handleClick = (position: cellPosition) => {
-    //     let unpackedBoardState = unpackBoardState(boardState);
-    //     const gamePlayState: gamePlayState = {
-    //         playerTurn, 
-    //         boardState: unpackedBoardState,
-    //         currentPlayer,
-    //         cellClicked: position,
-    //         allPiecesAddedToBoard,
-    //         cellOfSelectedPiece,
-    //     };
-
-    //     if (!allPiecesAddedToBoard) {
-    //         const cellAdditionValidityStatus = isValidCellToAddPieceTo(gamePlayState);
-    //         if (cellAdditionValidityStatus.isValid) {
-    //             unpackedBoardState = addPieceToSelectedCell(unpackedBoardState, position, playerTurn, dispatch);
-    //             checkIfAllPiecesHaveBeenAddedToBoard(playerTurn, playerTwoPiecesInHand, dispatch);
-    //             reduceNumberOfPiecesHeldByPlayerThatJustPlayed(playerTurn, playerOnePiecesInHand, playerTwoPiecesInHand, dispatch);
-    //             togglePlayerTurn(playerTurn, dispatch); 
-
-    //             resolvePromise(stringifyBoardState(unpackedBoardState));
-    //         } 
-    //         else {
-    //             alert(cellAdditionValidityStatus.message);
-    //         }
-    //     }
-    //     else {
-    //         // Make sure it is this player's turn to play
-    //         if (currentPlayer !== playerTurn) {
-    //             alert("It is not your turn to play, please hold on.");
-    //             return;
-    //         };
-
-    //         // check if current player selected a piece before
-    //         if (isPlayerToPlayAgain) {  
-               
-    //             if (isSelectedPieceClickedOnAgain(cellOfSelectedPiece, position)) {
-    //                 deselectPreviouslySelectedCell(unpackedBoardState, playerTurn, position, dispatch); 
-    //                 endDoublePlay(dispatch);
-    //                 return;
-    //             }
-
-    //             const cellMovingValidityStatus = isValidCellToMovePieceTo(gamePlayState);
-
-    //             if (cellMovingValidityStatus.isValid) {
-    //                 unpackedBoardState = addPieceToSelectedCell(unpackedBoardState, position, playerTurn);
-                    
-    //                 unpackedBoardState = removePieceFromCell(unpackedBoardState, cellOfSelectedPiece);
-
-    //                 const matchHandling = processMatch(gamePlayState);
-    //                 if (matchHandling.isAMatch) {
-                        
-    //                     decorateMatchedPieces(matchHandling.cellPositionsWithAMatch, unpackedBoardState, playerTurn)
-                    
-    //                     // Signify that player can attack opponent's pieces.
-    //                     dispatch(updateNumberOfAttacksLeft(matchHandling.cellPositionsWithAMatch.length> 3? 2 : 1));
-    //                     dispatch(updateIsPlayerToAttackOpponentPieces(true));
-    //                     dispatch(updateIsPlayerToPlayAgain(false));
-    //                 } 
-    //                 else {
-    //                     togglePlayerTurn(playerTurn, dispatch);
-    //                     endDoublePlay(dispatch);
-    //                 }  
-
-    //                 dispatch(updateBoardState(stringifyBoardState(unpackedBoardState)));
-
-    //                 resolvePromise(stringifyBoardState(unpackedBoardState));
-    //             } 
-    //             else {
-    //                 alert(cellMovingValidityStatus.message);
-    //             }
-    //         }
-    //         else if (isPlayerToAttackOpponentPieces) {
-                    
-    //                 const pieceAttackValidityStatus = isValidPieceToAttack(gamePlayState);
-    //                 if (pieceAttackValidityStatus.isValid) {
-    //                     unpackedBoardState = removePieceFromCell(unpackedBoardState, position);
-                        
-    //                     //setNumberOfAttacksLeft(numberOfAttacksLeft - 1);
-    //                     dispatch(updateNumberOfAttacksLeft(numberOfAttacksLeft - 1))
-
-    //                     let boardStateString = stringifyBoardState(unpackedBoardState);
-
-    //                     reduceNumberOfPiecesOfOpponentByOne(currentPlayer, playerOnePiecesLeft, playerTwoPiecesLeft, dispatch);
-
-    //                     if (numberOfAttacksLeft < 2) {
-    //                         togglePlayerTurn(playerTurn, dispatch);
-                            
-    //                         endAttack(dispatch);
-                        
-    //                         boardStateString = refreshMatchedCells(boardStateString, currentPlayer);
-    //                     } 
-
-    //                     dispatch(updateBoardState(boardStateString));
-
-    //                     resolvePromise(boardStateString);
-    //                 }
-    //                 else {
-    //                     alert(pieceAttackValidityStatus.message);
-    //                 }
-    //         }
-    //         else {
-    //             const pieceSelectionValidationStatus = isValidPieceToSelect(gamePlayState);
-    //             if (pieceSelectionValidationStatus.isValid) {
-    //                 unpackedBoardState =  selectPieceToBeMoved(unpackedBoardState, playerTurn, position);
-                    
-    //                 dispatch(updateBoardState(stringifyBoardState(unpackedBoardState)));
-
-    //                 dispatch(updateIsPlayerToPlayAgain(true));
-
-    //                 dispatch(updateCellOfSelectedPiece(position));
-    //             }
-    //             else {
-    //                 alert(pieceSelectionValidationStatus.message);
-    //             }
-    //         }
-    //     }
-    // }
+    const numberOfOpponentMoves = useSelector(Selector.selectNumberOfOpponentMoves);
+    const waitingForPlayer = useSelector(Selector.selectWaitingForPlayer);
 
     const handleClick = (position: cellPosition) => {
         let unpackedBoardState = unpackBoardState(boardState);
@@ -169,7 +37,18 @@ function GamePlay({ resolvePromise, isGameLoading }: IGamePlayProps) {
             addPieceToSelectedCell(unpackedBoardState, position, dispatch);
             dispatch(updateNumberOfMoves());
 
-            const continueGame = moveCatAround(unpackedBoardState, catPosition, dispatch);
+            const result = moveCatAround(unpackedBoardState, catPosition, dispatch);
+
+            dispatch(updateBoardStateArchive(result.boardState));
+
+            if (!result.continueGame) {
+                if (waitingForPlayer) {
+                    resolvePromise(numberOfMoves)
+                }
+                else {
+                    updatePlayerIsDone(true);
+                }
+            }
         }
         else {
             alert('You cannot place a block in this position because it is already occupied.')
@@ -184,10 +63,9 @@ function GamePlay({ resolvePromise, isGameLoading }: IGamePlayProps) {
                   <p className = {styles["player-info-title"]}>
                       You
                   </p>
-                  
                   <PlayerTurnAnimator isActive = { !isGameLoading } title='Your turn'/>
-                  
                 </div>
+
                 <div className={styles["player-info"]}>
                     <p className={styles["player-info-heading"]}>Number of moves</p>
                     <Indicator
@@ -203,10 +81,11 @@ function GamePlay({ resolvePromise, isGameLoading }: IGamePlayProps) {
                   <PlayerTurnAnimator isActive = { isGameLoading } title="Opponent's turn"/>
                   
                 </div>
+
                 <div className={styles["player-info"]}>
                     <p className={styles["player-info-heading"]}>Number of moves</p>
                     <Indicator
-                        numberOfMoves={numberOfMoves}
+                        numberOfMoves={numberOfOpponentMoves}
                     />
                 </div>
             </div>

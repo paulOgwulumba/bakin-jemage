@@ -29,22 +29,12 @@ export const boardStateSlice = createSlice({
     name: 'boardState',
     initialState: {
         boardState: initialState.boardState,
-        allPiecesAddedToBoard: false,
-        cellOfSelectedPiece: {
-            X: 0, Y: 0,
-        },
         boardStateArchive: [initialState.boardState],
         catPosition: initialState.catPosition,
     },
     reducers: {
         updateBoardState: (state, action) => {
             state.boardState = action.payload;
-        },
-        updateAllPiecesAddedToBoard: (state, action = { payload: true, type: '' }) => {
-            state.allPiecesAddedToBoard = action.payload;
-        },
-        updateCellOfSelectedPiece: (state, action) => {
-            state.cellOfSelectedPiece = action.payload;
         },
         updateCatPosition: (state, action) => {
             state.catPosition = action.payload;
@@ -63,16 +53,12 @@ export const boardStateSlice = createSlice({
         refreshBoardState: (state) => {
             const newState = generateInitialBoardstate(10, 10);
             state.boardState = newState.boardState;
-            state.allPiecesAddedToBoard = false;
-            state.cellOfSelectedPiece = {
-                X: 0, Y: 0,
-            }
             state.boardStateArchive = [newState.boardState];
             state.catPosition = newState.catPosition;
         }
     }
 });
 
-export const { updateBoardState, updateAllPiecesAddedToBoard, updateCellOfSelectedPiece, updateBoardStateArchive, refreshBoardState, updateCatPosition } = boardStateSlice.actions;
+export const { updateBoardState, updateBoardStateArchive, refreshBoardState, updateCatPosition } = boardStateSlice.actions;
 
 export default boardStateSlice.reducer;
