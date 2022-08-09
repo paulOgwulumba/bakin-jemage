@@ -1,6 +1,7 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { updateCurrentView, refreshBoardState, refreshGamePlayState } from '../redux/slices';
+import Store from '../redux/store';
 import { Views } from '../utils/constants';
 import style from './View.module.css';
 
@@ -23,6 +24,12 @@ export const WinnerView = () => {
                 style={{fontSize: '18px', }}
             >
                 You win!!!
+            </p>
+            <p 
+                className={style['message']}
+                style={{fontSize: '16px', }}
+            >
+                { `It took you ${Store.getState().gamePlayState.numberOfMoves} moves to capture the cat while it took your opponent ${Store.getState().gamePlayState.numberOfOpponentMoves} moves.` }
             </p>
             <p 
                 className={style['message']}

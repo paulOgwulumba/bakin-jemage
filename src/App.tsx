@@ -29,6 +29,7 @@ import {
     updateNumberOfOpponentMoves,
     moveToNextRound,
     refreshBoardState,
+    updatePlayerIsDone,
 } from './redux/slices';
 
 export interface IAppProps {
@@ -63,9 +64,9 @@ const App = ({ reach, reachBackend }: IAppProps) => {
     }
 
     const awaitPlayerMove = async () => {
-        if (playerIsDone) {
+        if (Store.getState().gamePlayState.playerIsDone === true) {
             dispatch(updateWaitingForPlayer(false));
-            return numberOfMoves
+            return Store.getState().gamePlayState.numberOfMoves
         }
         else {
             dispatch(updateWaitingForPlayer(true));
@@ -83,7 +84,7 @@ const App = ({ reach, reachBackend }: IAppProps) => {
 
         getOpponentResult: (numOfMoves: any) => {
             setIsGameLoading(true);
-            updateNumberOfOpponentMoves(parseInt(numOfMoves));
+            dispatch(updateNumberOfOpponentMoves(parseInt(numOfMoves)));
         }, 
 
         informTimeout: () => {
@@ -101,6 +102,7 @@ const App = ({ reach, reachBackend }: IAppProps) => {
             const currentPlayer = Store.getState().gamePlayState.currentPlayer;
             setIsGameLoading(false);
             setIsLoading(false);
+            dispatch(updatePlayerIsDone(false));
             
             if (parseInt(result) === 0) {
                 dispatch(updateCurrentView(currentPlayer === player.FIRST_PLAYER? Views.WINNER_VIEW : Views.LOSER_VIEW));
@@ -190,12 +192,10 @@ const App = ({ reach, reachBackend }: IAppProps) => {
         }
     };
 
-    const resolvePromise = (boardStateString) => {
+    const resolvePromise = (numberOfMoves) => {
         setIsGameLoading(true);
 
-        dispatch(updateBoardStateArchive(boardStateString));
-
-        promise.resolve();
+        promise.resolve(numberOfMoves);
     }
 
     const handlePlayerRoleSelect = (role: participantTitle) => {
@@ -239,7 +239,7 @@ const App = ({ reach, reachBackend }: IAppProps) => {
 
     return (
       <div className = 'App'>
-          <Loader isVisible = { isLoading }/>
+          <Loader isVisible = { isLoading || playerIsDone || isGameLoading }/>
 
           <GameLoader isVisible = { isGameLoading } />
 

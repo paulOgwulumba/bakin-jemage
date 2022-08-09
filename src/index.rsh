@@ -119,7 +119,8 @@ export const main = Reach.App(() => {
     Alice.publish(numOfMovesAlice)
       .timeout(relativeTime(deadline), () => closeTo(Bob, informTimeout));
 
-    getOpponentResult(numOfMovesAlice, numOfMovesBob);
+    Alice.interact.getOpponentResult(numOfMovesBob);
+    Bob.interact.getOpponentResult(numOfMovesAlice);
 
     outcome = getWinner(numOfMovesAlice, numOfMovesBob);
 

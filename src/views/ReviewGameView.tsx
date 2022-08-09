@@ -52,8 +52,8 @@ export const ReviewGameView = () => {
             </div>
 
             <Board 
-                numberOfColumns={5}
-                numberOfRows={6}
+                numberOfColumns={10}
+                numberOfRows={10}
                 boardState = { boardStateArchive[index] }
                 handleCellClick = { () => {} }
             />
@@ -72,6 +72,10 @@ export const ReviewGameView = () => {
         <button
             onClick = { closePage }
             className = { styles['button-special'] }
+            style = {{
+                position: 'absolute',
+                top: 10,
+            }}
         >
             End review
         </button>
