@@ -115,7 +115,7 @@ const App = ({ reach, reachBackend }: IAppProps) => {
 
     const acceptWager = (wager: number) => {
         setIsGameLoading(true);
-        alert(`Do you accept a wager of ${wager}?`);
+        alert(`Do you accept a wager of ${reach.formatCurrency(wager)}?`);
     }
 
     const convertCurrencyFromBigNumberToSmallNumber = (amount: number) => {
@@ -133,7 +133,7 @@ const App = ({ reach, reachBackend }: IAppProps) => {
 
         const interact = {
             ...InteractInterface,
-            wager,
+            wager: reach.parseCurrency(wager),
             deadline: 120,              // deadline of 120 seconds
             informOfJoiner: () => {
                 dispatch(updateCurrentView(Views.GAME_PLAY_VIEW));
@@ -185,6 +185,7 @@ const App = ({ reach, reachBackend }: IAppProps) => {
             
             dispatch(updateCurrentPlayer(player.SECOND_PLAYER))
             dispatch(updateCurrentView(Views.GAME_PLAY_VIEW));
+            dispatch(updateContractAddress(""));
         } catch (err) {
             setIsLoading(false);
             setDisplayContractAddressError(true);

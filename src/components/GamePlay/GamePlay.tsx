@@ -43,7 +43,7 @@ function GamePlay({ resolvePromise, isGameLoading }: IGamePlayProps) {
 
             if (!result.continueGame) {
                 if (waitingForPlayer) {
-                    resolvePromise(numberOfMoves)
+                    resolvePromise(numberOfMoves + 1)
                 }
                 else {
                     dispatch(updatePlayerIsDone(true));
