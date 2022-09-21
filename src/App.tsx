@@ -20,7 +20,6 @@ import { Loader, GameLoader } from './components';
 import { Selector } from './redux/selectors';
 import Store from './redux/store';
 import { 
-    updateBoardStateArchive,
     updateContractAddress,
     updatePlayerWalletAccount, 
     updateCurrentPlayer,
