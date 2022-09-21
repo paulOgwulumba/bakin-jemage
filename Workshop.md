@@ -102,7 +102,7 @@ const Player = {
 ];
 ```
 
-We are going to represent the cost of the wager and the deadline with UInt (unsigned integer). Alice will set these two values after creating the contract. There is a function (```informOfJoiner```), that gets called to notify Alice when Bob joins the contract and accepts its terms. There is a function that gives Bob the choice of accepting or rejecting the wager set by Alice. The two participants have five (5) other functions in common that lets them do the following:
+We are going to represent the cost of the wager and the deadline with UInt ([unsigned integer](https://docs.reach.sh/rsh/compute/#rsh_UInt)). Alice will set these two values after creating the contract. There is a function (```informOfJoiner```), that gets called to notify Alice when Bob joins the contract and accepts its terms. There is a function that gives Bob the choice of accepting or rejecting the wager set by Alice. The two participants have five (5) other functions in common that lets them do the following:
 
     Inform the contract of the number of moves it took them to capture the cat.
 
