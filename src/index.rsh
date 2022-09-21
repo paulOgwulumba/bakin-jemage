@@ -3,7 +3,7 @@
 /* eslint-disable no-undef */
 'reach 0.1';
 
-const [ isOutcome, A_WINS, B_WINS, CONTINUE, TERMINATE, DRAW] = makeEnum(5);
+const [ isOutcome, A_WINS, B_WINS, CONTINUE, DRAW] = makeEnum(4);
 
 const getWinner = (numberOfMovesAlice, numberOfMovesBob) => {
   if(numberOfMovesAlice > numberOfMovesBob){
@@ -45,13 +45,7 @@ export const main = Reach.App(() => {
 
   const announceWinner = (designation) => {
     each([Alice, Bob], () => {
-      if (this == Alice) {
         interact.declareWinner(designation);
-      }
-      else {
-        interact.declareWinner(designation);
-      }
-      
     });
   };
 

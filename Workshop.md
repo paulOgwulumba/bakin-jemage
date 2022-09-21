@@ -102,7 +102,7 @@ const Player = {
 ];
 ```
 
-We are going to represent the cost of the wager and the deadline with UInt (unsigned integer). Alice will set these two values after creating the contract. There is a function ('informOfJoiner'), that gets called to notify Alice when Bob joins the contract and accepts its terms. There is a function that gives Bob the choice of accepting or rejecting the wager set by Alice. The two participants have five (5) other functions in common that lets them do the following:
+We are going to represent the cost of the wager and the deadline with UInt (unsigned integer). Alice will set these two values after creating the contract. There is a function (```informOfJoiner```), that gets called to notify Alice when Bob joins the contract and accepts its terms. There is a function that gives Bob the choice of accepting or rejecting the wager set by Alice. The two participants have five (5) other functions in common that lets them do the following:
 
     Inform the contract of the number of moves it took them to capture the cat.
 
@@ -134,3 +134,302 @@ Here's what I wrote
 >    5. Alice and Bob get informed of the outcome of the round.
 
 The phrase "As long as" indicates a loop going on in the game. Considering that the game can go on and on for an indefinite number of rounds, a loop is the most feasible option for implementing this. The above information would be enough to implement the logic of our contract.
+
+**Stop!**
+Write down the communication pattern for this program as code.
+
+Main logic of our contract should now look like:
+
+```javascript
+// Enum value that we use to represent the current outcome of the game
+const [ isOutcome, A_WINS, B_WINS, CONTINUE, DRAW] = makeEnum(4);
+
+// Function that computes the outcome of a round given the number of moves it took each player to capture the cat.
+const getWinner = (numberOfMovesAlice, numberOfMovesBob) => {
+  if(numberOfMovesAlice > numberOfMovesBob){
+    return B_WINS;
+  }
+  else if (numberOfMovesAlice < numberOfMovesBob) {
+    return A_WINS;
+  }
+  else return DRAW;
+};
+
+
+
+// Get wager and deadline from Alice. Alice pays the wager amount to the contract too.
+Alice.only(() =>{
+    const wager = declassify(interact.wager);
+    const deadline = declassify(interact.deadline);
+});
+
+Alice.publish(wager, deadline).pay(wager);
+commit();
+
+
+// Bob accepts the wager and pays the wager amount to the contract.
+Bob.only(() => {
+    interact.acceptWager(wager);
+})
+Bob.pay(wager);
+
+// Alice gets informed that Bob has accepted the terms of the game.
+Alice.interact.informOfJoiner();
+
+var outcome = CONTINUE;
+/** There will always be double of the wager amount in the contract since Alice and Bob 
+ * both pay the wager into the contract before this point. 
+ **/
+invariant (balance() == 2 * wager);
+
+while(outcome == CONTINUE || outcome == DRAW) {
+    commit();
+
+    // Bob takes first turn by capturing the cat and publishing the number of moves it took him to do so.
+    Bob.only(() => {
+      const numOfMovesBob = declassify(interact.getNumberOfMoves());
+    });
+    Bob.publish(numOfMovesBob);
+    commit();
+
+    // Alice goes next
+    Alice.only(() => {
+      const numOfMovesAlice = declassify(interact.getNumberOfMoves());
+    });
+    Alice.publish(numOfMovesAlice)
+    commit();
+
+    // Alice observes the number of moves it took Bob to capture the cat.
+    Alice.interact.getOpponentResult(numOfMovesBob);
+
+    // Bob observes the number of moves it took Alice to capture the cat.
+    Bob.interact.getOpponentResult(numOfMovesAlice);
+
+    // The contract calculates the outcome of this round using the number of moves published by both players.
+    outcome = getWinner(numOfMovesAlice, numOfMovesBob);
+
+    continue;
+}
+```
+
+In the code, we defined the values that would represent the current outcome of our game using an enum  (```isOutcome```). 
+
+We also defined a function (```getWinner```) that calculates the current outcome of the game by running a comparison of the number of moves published by both players. 
+If the number of moves that Alice publishes (```numOfMovesAlice```) is equal to the number of moves that Bob publishes (```numOfMovesBob```), a draw is recorded and
+the players have to play again to determine the winner. However, if any of the participants captures the cat with fewer moves than their opponent in any round, they win the game.
+
+Within the while loop, both players are given the opportunity to publish the number of moves it took them to capture the cat (```getNumberOfMoves```) and get updates on the opponent's number of moves (```getOpponentResult```).
+
+## Assertion Insertion
+
+In addition to the invariant assertion we defined for our loop like this:
+```javascript
+invariant (balance() == 2 * wager);
+```
+We can add an extra assertion that ensures that the value passed to our ```outcome``` variable is always one of the possible values of our enum ```isOutcome```, thus:
+
+```javascript
+invariant (balance() == 2 * wager && isOutcome(outcome));
+```
+
+## Possible Additions
+
+So far, our code works fine. But there are some points we can improve.
+
+One improvement is to enforce a timeout limit on each player to make sure that they don't take too long to play their move or worse, abandon a game midway. Of course, we will need a means to inform both players when a timeout occurs. For that, we will define a function thus:
+
+```javascript
+// ...
+
+const informTimeout = () => {
+    each([Alice, Bob], () => {
+      interact.informTimeout();
+    });
+};
+
+// ...
+```
+
+To implement the timeout, we will use the ```deadline``` value that Alice created the contract with. 
+
+The timeout will be enforced when - 
+
+* Bob is to pay the wager:
+
+```javascript
+// ...
+
+Bob.only(() => {
+    interact.acceptWager(wager);
+})
+Bob.pay(wager)
+    .timeout(relativeTime(deadline), () => closeTo(Alice, informTimeout));
+
+// ...
+```
+
+* Bob is to make his move:
+
+```javascript
+// ...
+
+Bob.only(() => {
+    const numOfMovesBob = declassify(interact.getNumberOfMoves());
+});
+
+Bob.publish(numOfMovesBob)
+    .timeout(relativeTime(deadline), () => closeTo(Alice, informTimeout));
+commit();
+
+// ...
+```
+
+* Alice is to make her move:
+
+```javascript
+// ...
+
+Alice.only(() => {
+    const numOfMovesAlice = declassify(interact.getNumberOfMoves());
+});
+Alice.publish(numOfMovesAlice)
+    .timeout(relativeTime(deadline), () => closeTo(Bob, informTimeout));
+
+// ...
+```
+
+In addition, we can define two functions that inform the players when there is a draw or when a winner is announced:
+
+```javascript
+// ...
+
+const announceWinner = (designation) => {
+    each([Alice, Bob], () => {
+        interact.declareWinner(designation);
+    });
+};
+
+const informDraw = () => {
+    each([Alice, Bob], () => {
+        interact.informDraw();
+    });
+};
+
+//...
+```
+
+With all of these changes, our backend will look like this
+
+```javascript
+const [ isOutcome, A_WINS, B_WINS, CONTINUE, DRAW] = makeEnum(4);
+
+const getWinner = (numberOfMovesAlice, numberOfMovesBob) => {
+  if(numberOfMovesAlice > numberOfMovesBob){
+    return B_WINS;
+  }
+  else if (numberOfMovesAlice < numberOfMovesBob) {
+    return A_WINS;
+  }
+  else return DRAW;
+};
+
+
+const Player = {
+  ...hasRandom,
+  getNumberOfMoves: Fun([], UInt),
+  informTimeout: Fun([], Null),
+  informDraw: Fun([], Null),
+  declareWinner: Fun([UInt], Null),
+  getOpponentResult: Fun([UInt], Null),
+};
+
+export const main = Reach.App(() => {
+  const Alice = Participant('Alice', {
+    ...Player,
+    wager: UInt,
+    deadline: UInt,
+    informOfJoiner: Fun([], Null),
+  });
+  const Bob = Participant('Bob', {
+    ...Player,
+    acceptWager: Fun([UInt], Null),
+  });
+
+  const informTimeout = () => {
+    each([Alice, Bob], () => {
+      interact.informTimeout();
+    });
+  };
+
+  const announceWinner = (designation) => {
+    each([Alice, Bob], () => {
+        interact.declareWinner(designation);
+    });
+  };
+
+  const informDraw = () => {
+    each([Alice, Bob], () => {
+      interact.informDraw();
+    });
+  };
+
+  init();
+
+  Alice
+    .only(() =>{
+      const wager = declassify(interact.wager);
+      const deadline = declassify(interact.deadline);
+  });
+
+  Alice
+    .publish(wager, deadline)
+    .pay(wager);
+  commit();
+
+  Bob.only(() => {
+    interact.acceptWager(wager);
+  })
+  Bob.pay(wager)
+    .timeout(relativeTime(deadline), () => closeTo(Alice, informTimeout));
+  
+  Alice.interact.informOfJoiner();
+
+  var outcome = CONTINUE;
+
+  invariant (balance() == 2 * wager && isOutcome(outcome));
+
+  while(outcome == CONTINUE || outcome == DRAW) {
+    commit();
+
+    if (outcome == DRAW) {
+      informDraw();
+    }
+  
+    Bob.only(() => {
+      const numOfMovesBob = declassify(interact.getNumberOfMoves());
+    });
+
+    Bob.publish(numOfMovesBob)
+      .timeout(relativeTime(deadline), () => closeTo(Alice, informTimeout));
+    commit();
+
+    Alice.only(() => {
+      const numOfMovesAlice = declassify(interact.getNumberOfMoves());
+    });
+    Alice.publish(numOfMovesAlice)
+      .timeout(relativeTime(deadline), () => closeTo(Bob, informTimeout));
+
+    Alice.interact.getOpponentResult(numOfMovesBob);
+    Bob.interact.getOpponentResult(numOfMovesAlice);
+
+    outcome = getWinner(numOfMovesAlice, numOfMovesBob);
+
+    continue;
+  }
+
+  transfer(2 * wager).to(outcome == A_WINS ? Alice : Bob);
+  announceWinner(outcome);
+
+  commit();
+});
+```
