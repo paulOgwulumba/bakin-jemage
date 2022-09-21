@@ -37,8 +37,6 @@ export const main = Reach.App(() => {
     acceptWager: Fun([UInt], Null),
   });
 
-  init();
-
   const informTimeout = () => {
     each([Alice, Bob], () => {
       interact.informTimeout();
@@ -57,23 +55,13 @@ export const main = Reach.App(() => {
     });
   };
 
-  const getOpponentResult = (numOfMovesAlice, numOfMovesBob) => {
-    each([Alice, Bob], () => {
-      if (this == Alice) {
-        interact.getOpponentResult(numOfMovesBob);
-      }
-      else {
-        interact.getOpponentResult(numOfMovesAlice);
-      }
-      
-    });
-  };
-
   const informDraw = () => {
     each([Alice, Bob], () => {
       interact.informDraw();
     });
   };
+
+  init();
 
   Alice
     .only(() =>{
