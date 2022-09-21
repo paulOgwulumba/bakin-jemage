@@ -66,7 +66,7 @@ For the next step, I am going to define the data type equivalents of the values 
 * What functions/values does Alice need to start the game?
 * What functions/values does Bob need to join the game?
 * What functions/values do the two players need to play and observe moves?
-* What functions/values do the two players need to inform the contract of the number of pieces they have and assume their opponent has?
+* What functions/values do the two players need to know the outcome of each round?
 
 You should look back at your problem analysis to do this step. Whenever a participant starts off knowing something, then it is a field in the interact object. If they learn something, then it will be an argument to a function. If they provide something later, then it will be the result of a function.
 
