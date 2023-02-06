@@ -234,7 +234,7 @@ const App = ({ reach, reachBackend }: IAppProps) => {
     }
 
     useEffect(() => {
-        connectToDefaultAccount();
+        // connectToDefaultAccount();
     }, []);
 
     return (
