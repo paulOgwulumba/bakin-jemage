@@ -29,7 +29,7 @@ const BoardCell = ({
                         cellState === cellStateEnum.CELL_CONTAINING_CAT &&
                         <FaCat 
                             style={{
-                                color: '#FFF',
+                                color: '#000',
                                 fontSize: '30px',
                             }}
                         />
@@ -39,7 +39,7 @@ const BoardCell = ({
                         cellState === cellStateEnum.CELL_CONTAINING_TRAPPED_CAT &&
                         <GiCat 
                             style={{
-                                color: '#FFF',
+                                color: '#000',
                                 fontSize: '30px',
                             }}
                         />

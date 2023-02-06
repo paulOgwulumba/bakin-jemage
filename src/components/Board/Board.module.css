@@ -30,7 +30,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: black;
+    background-color: whitesmoke;
     width: calc(510px / 10);
     height: calc(510px / 10);
     border: 1px inset rgb(126, 124, 124);
@@ -44,12 +44,12 @@
 }
 
 .boardPieceBlock {
-    border: 1px inset antiquewhite;
-    background-color: antiquewhite;
+    border: 1px inset black;
+    background-color: black;
 }
 
 .boardPieceCat {
-    background-color: black;
+    background-color: whitesmoke;
     border: 1px inset rgb(37, 37, 241);
     background-size: cover;
     animation: swell 2s linear 0ms infinite forwards;
